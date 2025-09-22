@@ -1,4 +1,4 @@
-package usecase
+package cipher
 
 import (
 	"ave_project/pkg/cipher"

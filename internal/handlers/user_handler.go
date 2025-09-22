@@ -1,14 +1,13 @@
 package handlers
 
 import (
+	"ave_project/internal/usecase/user"
 	"encoding/json"
 	"net/http"
-
-	"ave_project/internal/usecase"
 )
 
 type UserHandler struct {
-	Usecase *usecase.UserUsecase
+	Usecase *user.UserUsecase
 }
 
 type RegisterRequest struct {

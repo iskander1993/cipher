@@ -7,10 +7,11 @@ import (
 
 	"ave_project/internal/infrastructure/postgres"
 	"ave_project/internal/infrastructure/repositories"
-	"ave_project/internal/usecase"
+	"ave_project/internal/middleware"
+	"ave_project/internal/usecase" // <- добавляем пакет usecase
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware" // <- псевдоним для chi middleware
 	"github.com/go-chi/cors"
 )
 
@@ -19,7 +20,6 @@ func main() {
 	db := postgres.ConnectPostgres()
 
 	// Репозиторий
-	//passwordRepo := repositories.NewPasswordRepository(db)
 	userRepo := repositories.NewUserRepository(db)
 
 	// Юзкейсы
@@ -33,33 +33,38 @@ func main() {
 	// Chi router
 	r := chi.NewRouter()
 
-	// Middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	// === MIDDLEWARE ===
+	r.Use(middleware.LoggingMiddleware) // кастомный логгер
+	r.Use(chiMiddleware.Logger)         // встроенный логгер chi
+	r.Use(chiMiddleware.Recoverer)      // отлов паник
 
-	// CORS (для фронта)
+	// CORS
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"}, // можно указать конкретные фронт-домены
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // 5 минут
+		MaxAge:           300,
 	}))
 
 	// API группа
 	r.Route("/api/v1", func(r chi.Router) {
-		// User routes
 		r.Post("/register", userHandler.RegisterHandler)
 		r.Post("/login", userHandler.LoginHandler)
-
-		// Cipher routes
 		r.Post("/encrypt", cipherHandler.EncryptHandler)
 		r.Post("/decrypt", cipherHandler.DecryptHandler)
+
+		// Тестовый эндпоинт
+		r.Get("/test", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Test OK"))
+		})
 	})
 
 	// Запуск сервера
 	srvAddr := ":8080"
-	fmt.Println("Listening on", srvAddr)
+	fmt.Println("Server starting on", srvAddr)
+	fmt.Println("Logging middleware activated!")
 	http.ListenAndServe(srvAddr, r)
 }

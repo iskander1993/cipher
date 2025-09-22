@@ -1,3 +1,4 @@
+// internal/middleware/auth.go
 package middleware
 
 import (
@@ -11,30 +12,27 @@ type contextKey string
 
 var userIDKey = contextKey("userID")
 
-// AuthMiddleware проверяет JWT токен
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
+		authHeader := strings.TrimSpace(r.Header.Get("Authorization"))
 		if authHeader == "" {
 			http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		// TODO: Переписать без " "
-		//  Использовать trim или replace
-		parts := strings.Split(authHeader, " ")
+		parts := strings.Fields(authHeader) // автоматически разделяет по пробелам
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(w, "Invalid Authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		userID, err := jwtpkg.ParseToken(parts[1])
+		tokenStr := strings.TrimSpace(parts[1])
+		userID, err := jwt.ParseToken(tokenStr)
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		// кладём userID в context
 		ctx := context.WithValue(r.Context(), userIDKey, userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

@@ -9,7 +9,6 @@ import (
 type loggingResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
-	body       []byte
 }
 
 func (lrw *loggingResponseWriter) WriteHeader(code int) {
@@ -17,31 +16,25 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.ResponseWriter.WriteHeader(code)
 }
 
-func (lrw *loggingResponseWriter) Write(b []byte) (int, error) {
-	lrw.body = append(lrw.body, b...) // сохраняем тело
-	return lrw.ResponseWriter.Write(b)
+func (lrw *loggingResponseWriter) Status() int {
+	return lrw.statusCode
 }
 
-func LoggingMiddleware(next http.Handler) http.Handler {
+func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		// оборачиваем стандартный ResponseWriter
-		lrw := &loggingResponseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-
-		// вызываем следующий обработчик
+		lrw := &loggingResponseWriter{
+			ResponseWriter: w,
+			statusCode:     http.StatusOK,
+		}
 		next.ServeHTTP(lrw, r)
 
-		duration := time.Since(start)
-
-		log.Printf(
-			"%s %s %s %d %v\nResponse: %s",
+		log.Printf("%s %s ->%d (%s)",
 			r.Method,
-			r.RequestURI,
-			r.RemoteAddr,
-			lrw.statusCode, // статус ответа
-			duration,
-			string(lrw.body), // тело ответа
+			r.URL.Path,
+			lrw.Status(),
+			time.Since(start),
 		)
 	})
 }

@@ -1,14 +1,13 @@
 package handlers
 
 import (
+	"ave_project/internal/usecase/cipher"
 	"encoding/json"
 	"net/http"
-
-	"ave_project/internal/usecase"
 )
 
 type CipherHandler struct {
-	Usecase *usecase.CipherUsecase
+	Usecase *cipher.CipherUsecase
 }
 
 type CipherRequest struct {
