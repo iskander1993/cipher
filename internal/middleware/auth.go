@@ -1,4 +1,3 @@
-// internal/middleware/auth.go
 package middleware
 
 import (
@@ -20,7 +19,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		parts := strings.Fields(authHeader) // автоматически разделяет по пробелам
+		parts := strings.Fields(authHeader) // разделяет по пробелам
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			http.Error(w, "Invalid Authorization header", http.StatusUnauthorized)
 			return

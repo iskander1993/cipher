@@ -2,17 +2,17 @@ package main
 
 import (
 	http2 "ave_project/internal/handlers"
-	"fmt"
-	"net/http"
-
 	"ave_project/internal/infrastructure/postgres"
 	"ave_project/internal/infrastructure/repositories"
 	"ave_project/internal/middleware"
-	"ave_project/internal/usecase" // <- добавляем пакет usecase
-
+	"ave_project/internal/usecase/cipher"
+	"ave_project/internal/usecase/user"
+	// остальные импорты...
+	"fmt"
 	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware" // <- псевдоним для chi middleware
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"net/http"
 )
 
 func main() {
@@ -23,8 +23,8 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 
 	// Юзкейсы
-	userUC := &usecase.UserUsecase{Repo: userRepo}
-	cipherUC := &usecase.CipherUsecase{}
+	userUC := &user.UserUsecase{Repo: userRepo}
+	cipherUC := &cipher.CipherUsecase{}
 
 	// Хендлеры
 	userHandler := &http2.UserHandler{Usecase: userUC}

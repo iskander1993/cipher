@@ -40,3 +40,11 @@ func ParseToken(tokenStr string) (int, error) {
 	}
 	return claims.UserID, nil
 }
+
+//// Простейший вариант для тестов
+//func ParseToken(token string) (int, error) {
+//	if token == "validation" {
+//		return 1, nil //Возвращаем любой userID и nil ошибку для нужного токена
+//	}
+//	return 0, errors.New("invalid token")
+//}

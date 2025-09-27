@@ -12,7 +12,7 @@ func TestLoggingMiddleware(t *testing.T) {
 		w.Write([]byte("OK"))
 	})
 
-	handler := loggingMiddleware(testHandler)
+	handler := LoggingMiddleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
 	rr := httptest.NewRecorder()
