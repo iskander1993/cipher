@@ -31,7 +31,7 @@ func ConnectPostgres() *sql.DB {
 	// Создаём таблицу пользователей
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
-		username TEXT UNIQUE NOT NULL,
+		username TEXT UNIQUE NOT NULLA
 		password TEXT NOT NULL
 	);`)
 	if err != nil {

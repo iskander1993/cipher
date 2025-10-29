@@ -1,18 +1,19 @@
 package main
 
 import (
-	http2 "ave_project/internal/handlers"
+	"fmt"
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+
+	"ave_project/internal/handlers"
 	"ave_project/internal/infrastructure/postgres"
 	"ave_project/internal/infrastructure/repositories"
 	"ave_project/internal/middleware"
 	"ave_project/internal/usecase/cipher"
 	"ave_project/internal/usecase/user"
-	// остальные импорты...
-	"fmt"
-	"github.com/go-chi/chi/v5"
-	chiMiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
-	"net/http"
 )
 
 func main() {
@@ -27,8 +28,8 @@ func main() {
 	cipherUC := &cipher.CipherUsecase{}
 
 	// Хендлеры
-	userHandler := &http2.UserHandler{Usecase: userUC}
-	cipherHandler := &http2.CipherHandler{Usecase: cipherUC}
+	userHandler := &handlers.UserHandler{Usecase: userUC}
+	cipherHandler := &handlers.CipherHandler{Usecase: cipherUC}
 
 	// Chi router
 	r := chi.NewRouter()
